@@ -102,8 +102,8 @@ dmapi={
     'abcdefg': 8,
     'abcdfg': 9,
 }
-sortstr = str => [...str].sort().join('')
-Object.keys(dmap).forEach(k => dmap[k] = sortstr(dmap[k]))
+s = str => [...str].sort().join('')
+Object.keys(dmap).forEach(k => dmap[k] = s(dmap[k]))
 
 
 
@@ -271,64 +271,6 @@ freq={
 
 
 
+;
+((i=(a,b,...r)=>!b?a:r.length?i(new Set([...a].filter(e=>b.has(e))),...r):new Set([...a].filter(e=>b.has(e))),d=(a,...b)=>new Set([...a].filter(e=>!b.includes(e))),n=a=>new Set([...a]),s=a=>[...a].sort().join(''),u=a=>[...a][0],p=i=>(...fns)=>fns.reduce((i,f)=>f(i),i),v=r=>Object.entries(r).reduce((o,[k,v])=>({...o,[v]:k}),{}))=>lines.reduce((t,l,_,a,m=v(p(l.slice(0,10).reduce((t,c)=>({...t,[c.length]:i(n(c),t[c.length])}),{}),0)(s=>({...s,a:u(i(s[3],s[5])),f:u(i(s[2],s[4],s[6])),d:u(i(s[4],s[5]))}),s=>({...s,b:u(d(i(s[4],s[6]),s.f)),c:u(d(s[2],s.f))}),s=>({...s,e:u(d(s[7],...s[6],s.c,s.d))}),s=>({...s,g:u(d(s[7],...Object.values(s)))}),)))=>t+l.slice(10).reduce((t,d)=>10*t+{abcefg:0,cf:1,acdeg:2,acdfg:3,bcdf:4,abdfg:5,abdefg:6,acf:7,abcdefg:8,abcdfg:9}[s([...d].map(char=>m[char]))],0),0))()
 
-intersection = (a, b, ...r) => !b ? a : r.length ? intersection(new Set([...a].filter(e=>b.has(e))), ...r) : new Set([...a].filter(e=>b.has(e)))
-difference = (a, b) => new Set([...a].filter(e=>!b.has(e)))
-sortstr = a => [...a].sort().join('')
-map = {
-    abcefg: 0,
-    cf: 1,
-    acdeg: 2,
-    acdfg: 3,
-    bcdf: 4,
-    abdfg: 5,
-    abdefg: 6,
-    acf: 7,
-    abcdefg: 8,
-    abcdfg: 9
-}
-count = 0
-for (const line of lines) {
-    digits = line.slice(0, 10)
-    display = line.slice(10)
-    mapping = {}
-    sets = {}
-    for (const digit of digits) {
-        sets[digit.length] = intersection(new Set([...digit]), sets[digit.length])
-    }
-
-
-    // unique: 1 (cf), 4 (bcdf), 7 (acf), 8 (abcdefg) (lens 2, 4, 3, 7) 
-    // groups: [0, 6, 9] (abfg), [2, 3, 5] (adg) (lens 6, 5)
-
-    // a: 7 n group[1]
-    mapping.a = [...intersection(sets[3], sets[5])][0]
-
-    // f: 1 n 4 n group[0] = f
-    mapping.f = [...intersection(sets[2], sets[4], sets[6])][0]
-
-    // b: 4 n group[0] - f
-    mapping.b = [...difference(intersection(sets[4], sets[6]), new Set([mapping.f]))][0]
-
-    // c: 1 - f
-    mapping.c = [...difference(sets[2], new Set([mapping.f]))][0]
-
-    // d: 4 n group[1] = d
-    mapping.d = [...intersection(sets[4], sets[5])][0]
-
-    // e: 8 - group[0] - {c, d}
-    mapping.e = [...difference(difference(sets[7], sets[6]), new Set([mapping.c, mapping.d]))][0]
-
-    // g: 8 - {a,b,c,d,e,f}
-    mapping.g = [...difference(sets[7], new Set(Object.values(mapping)))][0]
-
-    invmapping = {}
-    for (const [k, v] of Object.entries(mapping)) invmapping[v] = k
-    
-    num = 0
-    display.forEach(digit => {
-        num *= 10
-        num += parseInt(map[sortstr([...digit].map(char => invmapping[char]))])
-    })
-    count += num
-}
