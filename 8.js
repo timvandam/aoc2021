@@ -65,6 +65,18 @@ f = {
 }
 
 b=document.body.innerText
+b=`
+be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
+edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
+fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
+fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
+aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
+fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
+dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
+bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
+egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
+gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
+`
 lines=b.trim().split('\n').map(e=>e.match(/(\w+)/g))
 dmap={
     0: 'abcefg',
@@ -115,144 +127,208 @@ freq={
    g:7
 }
 
+// count = 0
+// for (const line of lines) {
+//     digits = line.slice(0, 10)
+//     display = line.slice(10)
+//     mapping = defaultmapping()
+//     remchars = [...'abcdefg']
+
+//     digitFreqs = digits.reduce((obj, digit) => {
+//         for (const d of digit) {
+//             obj[d]++
+//         }
+//         return obj
+//     }, {a:0,b:0,c:0,d:0,e:0,f:0})
+
+//     for (const d of 'abcdefg') {
+//         if (digitFreqs[d] === 6) {
+//             // `d` maps to b
+//             mapsto='b'
+//             mapping[d] = [mapsto]
+//             remchars = remchars.filter(c=>c!==d)
+//             for (const x of remchars) {
+//                 mapping[x] = mapping[x].filter(c => c!==mapsto)
+//             }
+//         } else if (digitFreqs[d] === 4) {
+//             // `d` maps to e
+//             mapsto='e'
+//             mapping[d] = [mapsto]
+//             remchars = remchars.filter(c=>c!==d)
+//             for (const x of remchars) {
+//                 mapping[x] = mapping[x].filter(c => c!==mapsto)
+//             }
+//         } else if (digitFreqs[d] === 9) {
+//             // `d` maps to f
+//             mapsto='f'
+//             mapping[d] = [mapsto]
+//             remchars = remchars.filter(c=>c!==d)
+//             for (const x of remchars) {
+//                 mapping[x] = mapping[x].filter(c => c!==mapsto)
+//             }
+//         }
+//     }
+
+//     for (let i = 0; i < digits.length; i++) {
+//         digit = digits[i];
+//         if (digit.length === 2) {
+//             // its 1
+//             possible = 'cf'
+//             notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
+//             otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
+//             for (const char of digit) {
+//                 // these dont appear in 1
+//                 mapping[char] = mapping[char].filter(c => possible.includes(c))
+//             }
+//             // only `digit` can map to cf. the others can not
+//             for (const char of otherdigits) {
+//                 mapping[char] = mapping[char].filter(c => notpossible.includes(c))
+//             }
+//         } else if (digit.length === 3) {
+//             // its 7
+//             possible = 'acf'
+//             notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
+//             otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
+//             for (const char of digit) {
+//                 // these dont appear in 1
+//                 mapping[char] = mapping[char].filter(c => possible.includes(c))
+//             }
+//             // only `digit` can map to cf. the others can not
+//             for (const char of otherdigits) {
+//                 mapping[char] = mapping[char].filter(c => notpossible.includes(c))
+//             }
+//         } else if (digit.length === 4) {
+//             // its 4
+//             possible = 'bcdf'
+//             notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
+//             otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
+//             for (const char of digit) {
+//                 // these dont appear in 1
+//                 mapping[char] = mapping[char].filter(c => possible.includes(c))
+//             }
+//             // only `digit` can map to cf. the others can not
+//             for (const char of otherdigits) {
+//                 mapping[char] = mapping[char].filter(c => notpossible.includes(c))
+//             }
+//         } else if (digit.length === 7) {
+//             // its 8
+//         } else if (digit.length === 6) {
+//             // its either 9 or 6 or 0
+//         } else if (digit.length === 5) {
+//             // its either 2 or 3 or 5
+//         }
+
+//         check=true
+//         while (check) {
+//             check = false
+//             for (const key of remchars) {
+//                 if (mapping[key].length === 1) {
+//                     const [char] = mapping[key]
+//                     // remove char everywhere else
+//                     remchars = remchars.filter(c => c!== key)
+//                     for (const c of remchars) {
+//                         mapping[c] = mapping[c].filter(c => c!== char)
+//                     }
+//                     check=true
+//                 }
+//             }
+//         }
+//     }
+
+//     let mappings = [...allPossibleMappings(mapping)]
+
+//     // just use the first valid mapping and pray it works
+//     for (const mapping of mappings) {
+//         wireToDigit = wire => dmapi[sortstr([...wire].map(e=>mapping[e][0]).join(''))]
+//         result = display.map(e=>wireToDigit(e)).join('')
+//         if(result.length===4) {
+//             count += parseInt(result || 0)
+//             break
+//         } else {
+//             console.log(line, mapping)
+//         }
+//     }
+// }
+// count;
+
+// function* allPossibleMappings(mapping) {
+//     let rem = undefined;
+//     for (const k of Object.keys(mapping)) {
+//         if (mapping[k].length !== 1) {
+//             rem = k
+//             break
+//         }
+//     }
+
+//     if (rem !== undefined) {
+//         for(const r of mapping[rem]) {
+//             yield* allPossibleMappings({...mapping, [rem]: [r]})
+//         }
+//     } else {
+//         yield mapping
+//     }
+// }
+
+
+
+
+intersection = (a, b, ...r) => !b ? a : r.length ? intersection(new Set([...a].filter(e=>b.has(e))), ...r) : new Set([...a].filter(e=>b.has(e)))
+difference = (a, b) => new Set([...a].filter(e=>!b.has(e)))
+sortstr = a => [...a].sort().join('')
+map = {
+    abcefg: 0,
+    cf: 1,
+    acdeg: 2,
+    acdfg: 3,
+    bcdf: 4,
+    abdfg: 5,
+    abdefg: 6,
+    acf: 7,
+    abcdefg: 8,
+    abcdfg: 9
+}
 count = 0
 for (const line of lines) {
     digits = line.slice(0, 10)
     display = line.slice(10)
-    mapping = defaultmapping()
-    remchars = [...'abcdefg']
-
-    digitFreqs = digits.reduce((obj, digit) => {
-        for (const d of digit) {
-            obj[d]++
-        }
-        return obj
-    }, {a:0,b:0,c:0,d:0,e:0,f:0})
-
-    for (const d of 'abcdefg') {
-        if (digitFreqs[d] === 6) {
-            // `d` maps to b
-            mapsto='b'
-            mapping[d] = [mapsto]
-            remchars = remchars.filter(c=>c!==d)
-            for (const x of remchars) {
-                mapping[x] = mapping[x].filter(c => c!==mapsto)
-            }
-        } else if (digitFreqs[d] === 4) {
-            // `d` maps to e
-            mapsto='e'
-            mapping[d] = [mapsto]
-            remchars = remchars.filter(c=>c!==d)
-            for (const x of remchars) {
-                mapping[x] = mapping[x].filter(c => c!==mapsto)
-            }
-        } else if (digitFreqs[d] === 9) {
-            // `d` maps to f
-            mapsto='f'
-            mapping[d] = [mapsto]
-            remchars = remchars.filter(c=>c!==d)
-            for (const x of remchars) {
-                mapping[x] = mapping[x].filter(c => c!==mapsto)
-            }
-        }
+    mapping = {}
+    sets = {}
+    for (const digit of digits) {
+        sets[digit.length] = intersection(new Set([...digit]), sets[digit.length])
     }
 
-    for (let i = 0; i < digits.length; i++) {
-        digit = digits[i];
-        if (digit.length === 2) {
-            // its 1
-            possible = 'cf'
-            notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
-            otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
-            for (const char of digit) {
-                // these dont appear in 1
-                mapping[char] = mapping[char].filter(c => possible.includes(c))
-            }
-            // only `digit` can map to cf. the others can not
-            for (const char of otherdigits) {
-                mapping[char] = mapping[char].filter(c => notpossible.includes(c))
-            }
-        } else if (digit.length === 3) {
-            // its 7
-            possible = 'acf'
-            notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
-            otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
-            for (const char of digit) {
-                // these dont appear in 1
-                mapping[char] = mapping[char].filter(c => possible.includes(c))
-            }
-            // only `digit` can map to cf. the others can not
-            for (const char of otherdigits) {
-                mapping[char] = mapping[char].filter(c => notpossible.includes(c))
-            }
-        } else if (digit.length === 4) {
-            // its 4
-            possible = 'bcdf'
-            notpossible = [...'abcdefg'].filter(c=>!possible.includes(c))
-            otherdigits = [...'abcdefg'].filter(c=>!digit.includes(c))
-            for (const char of digit) {
-                // these dont appear in 1
-                mapping[char] = mapping[char].filter(c => possible.includes(c))
-            }
-            // only `digit` can map to cf. the others can not
-            for (const char of otherdigits) {
-                mapping[char] = mapping[char].filter(c => notpossible.includes(c))
-            }
-        } else if (digit.length === 7) {
-            // its 8
-        } else if (digit.length === 6) {
-            // its either 9 or 6 or 0
-        } else if (digit.length === 5) {
-            // its either 2 or 3 or 5
-        }
 
-        check=true
-        while (check) {
-            check = false
-            for (const key of remchars) {
-                if (mapping[key].length === 1) {
-                    const [char] = mapping[key]
-                    // remove char everywhere else
-                    remchars = remchars.filter(c => c!== key)
-                    for (const c of remchars) {
-                        mapping[c] = mapping[c].filter(c => c!== char)
-                    }
-                    check=true
-                }
-            }
-        }
-    }
+    // unique: 1 (cf), 4 (bcdf), 7 (acf), 8 (abcdefg) (lens 2, 4, 3, 7) 
+    // groups: [0, 6, 9] (abfg), [2, 3, 5] (adg) (lens 6, 5)
 
-    let mappings = [...allPossibleMappings(mapping)]
+    // a: 7 n group[1]
+    mapping.a = [...intersection(sets[3], sets[5])][0]
 
-    // just use the first valid mapping and pray it works
-    for (const mapping of mappings) {
-        wireToDigit = wire => dmapi[sortstr([...wire].map(e=>mapping[e][0]).join(''))]
-        result = display.map(e=>wireToDigit(e)).join('')
-        if(result.length===4) {
-            count += parseInt(result || 0)
-            break
-        } else {
-            console.log(line, mapping)
-        }
-    }
-}
-count;
+    // f: 1 n 4 n group[0] = f
+    mapping.f = [...intersection(sets[2], sets[4], sets[6])][0]
 
-function* allPossibleMappings(mapping) {
-    let rem = undefined;
-    for (const k of Object.keys(mapping)) {
-        if (mapping[k].length !== 1) {
-            rem = k
-            break
-        }
-    }
+    // b: 4 n group[0] - f
+    mapping.b = [...difference(intersection(sets[4], sets[6]), new Set([mapping.f]))][0]
 
-    if (rem !== undefined) {
-        for(const r of mapping[rem]) {
-            yield* allPossibleMappings({...mapping, [rem]: [r]})
-        }
-    } else {
-        yield mapping
-    }
+    // c: 1 - f
+    mapping.c = [...difference(sets[2], new Set([mapping.f]))][0]
+
+    // d: 4 n group[1] = d
+    mapping.d = [...intersection(sets[4], sets[5])][0]
+
+    // e: 8 - group[0] - {c, d}
+    mapping.e = [...difference(difference(sets[7], sets[6]), new Set([mapping.c, mapping.d]))][0]
+
+    // g: 8 - {a,b,c,d,e,f}
+    mapping.g = [...difference(sets[7], new Set(Object.values(mapping)))][0]
+
+    invmapping = {}
+    for (const [k, v] of Object.entries(mapping)) invmapping[v] = k
+    
+    num = 0
+    display.forEach(digit => {
+        num *= 10
+        num += parseInt(map[sortstr([...digit].map(char => invmapping[char]))])
+    })
+    count += num
 }
