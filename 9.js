@@ -158,3 +158,6 @@ for (let i = 0; i < mat.length; i++) {
     }
 }
 console.log('result:', a*b*c)
+
+
+((mat,s=new Set(),b=(i,j,r=s.size)=>mat[i][j]==9||s.has(`${i}-${j}`)?0:s.add(`${i}-${j}`)&&[[-1,0],[1,0],[0,-1],[0,1]].reduce((_,[dy,dx],k,o,y=i+dy,x=j+dx)=>[(y < 0 || x < 0 || y >= mat.length || x >= mat[y].length)?0:b(y,x),s.size-r][1],r))=>mat.flatMap((r,i)=>r.map((_,j)=>b(i,j))).sort((x,y)=>x-y).slice(-3).reduce((x,y)=>x*y))(document.body.innerText.trim().split('\n').map(l=>l.match(/(\d)/g).map(Number)))
