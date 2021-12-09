@@ -272,5 +272,67 @@ freq={
 
 
 ;
-((i=(a,b,...r)=>!b?a:r.length?i(new Set([...a].filter(e=>b.has(e))),...r):new Set([...a].filter(e=>b.has(e))),d=(a,...b)=>new Set([...a].filter(e=>!b.includes(e))),n=a=>new Set([...a]),s=a=>[...a].sort().join(''),u=a=>[...a][0],p=i=>(...fns)=>fns.reduce((i,f)=>f(i),i),v=r=>Object.entries(r).reduce((o,[k,v])=>({...o,[v]:k}),{}))=>lines.reduce((t,l,_,a,m=v(p(l.slice(0,10).reduce((t,c)=>({...t,[c.length]:i(n(c),t[c.length])}),{}),0)(s=>({...s,a:u(i(s[3],s[5])),f:u(i(s[2],s[4],s[6])),d:u(i(s[4],s[5]))}),s=>({...s,b:u(d(i(s[4],s[6]),s.f)),c:u(d(s[2],s.f))}),s=>({...s,e:u(d(s[7],...s[6],s.c,s.d))}),s=>({...s,g:u(d(s[7],...Object.values(s)))}),)))=>t+l.slice(10).reduce((t,d)=>10*t+{abcefg:0,cf:1,acdeg:2,acdfg:3,bcdf:4,abdfg:5,abdefg:6,acf:7,abcdefg:8,abcdfg:9}[s([...d].map(char=>m[char]))],0),0))()
+((i=(a,b,...r)=>!b?a:r.length?i(new Set([...a].filter(e=>b.has(e))),...r):new Set([...a].filter(e=>b.has(e))),d=(a,...b)=>new Set([...a].filter(e=>!b.includes(e))),n=a=>new Set([...a]),u=a=>[...a][0],p=i=>(...fns)=>fns.reduce((i,f)=>f(i),i),v=r=>Object.entries(r).reduce((o,[k,v])=>({...o,[v]:k}),{}))=>document.body.innerText.trim().split('\n').map(e=>e.match(/(\w+)/g)).reduce((t,l,_,a,m=v(p(l.slice(0,10).reduce((t,c)=>({...t,[c.length]:i(n(c),t[c.length])}),{}),0)(s=>({...s,a:u(i(s[3],s[5])),f:u(i(s[2],s[4],s[6])),d:u(i(s[4],s[5]))}),s=>({...s,b:u(d(i(s[4],s[6]),s.f)),c:u(d(s[2],s.f))}),s=>({...s,e:u(d(s[7],...s[6],s.c,s.d))}),s=>({...s,g:u(d(s[7],...Object.values(s)))}),)))=>t+l.slice(10).reduce((t,d)=>10*t+{abcefg:0,cf:1,acdeg:2,acdfg:3,bcdf:4,abdfg:5,abdefg:6,acf:7,abcdefg:8,abcdfg:9}[[...d].map(char=>m[char]).sort().join('')],0),0))()
+
+
+Set.prototype.union = function (...sets) {
+  return new Set([...this, ...sets.flatMap(set => [...set])])
+}
+Set.prototype.intersect = function (...sets) {
+  return new Set([...this].filter(e => sets.every(set => set.has(e))))
+}
+Set.prototype.difference = function (b) {
+  return new Set([...this].filter(e => !b.has(e)))
+}
+Set.prototype.xor = function (b) {
+  return union(difference(this, b), difference(b, this))
+}
+set = (...elements) => new Set(elements)
+
+
+lines = document.body.innerText.trim().split('\n').map(e=>e.match(/(\w+)/g))
+
+
+/*
+0  6
+1  2  U
+2  5
+3  5
+4  4  U
+5  5
+6  6
+7  3  U
+8  7
+9  6
+
+*/
+get=a=>[...a][0]
+count = 0;
+for (const line of lines) {
+  const digits = line.slice(0, 10)
+  const display = line.slice(10)
+  const cf = set(...digits.find(x => x.length === 2))
+  const acf = set(...digits.find(x => x.length === 3))
+  const bcdf = set(...digits.find(x => x.length === 4))
+  const a = acf.difference(cf)
+  const bd = bcdf.difference(cf)
+  const abcdefg = set(...digits.filter(x => x.length === 5).flatMap(x => [...x])) // 2 3 5
+  const aeg = abcdefg.difference(bcdf)
+  const eg = aeg.difference(a)
+  const adg = digits.filter(x => x.length === 5).map(x => set(...x)).reduce((set, x) => set.intersect(x)) // 2 3 5
+  const abfg = digits.filter(x => x.length === 6).map(x => set(...x)).reduce((set, x) => set.intersect(x)) // 0 6 9
+  const g = adg.difference(a).difference(bd)
+  const e = eg.difference(g)
+  const f = abfg.difference(adg).difference(bd)
+  const c = cf.difference(f)
+  const bcd = bcdf.difference(f)
+  const b = abfg.difference(a).difference(f).difference(g)
+  const d = bcd.difference(b).difference(c)
+  const translation = {[get(a)]:'a',[get(b)]:'b',[get(c)]:'c',[get(d)]:'d',[get(e)]:'e',[get(f)]:'f',[get(g)]:'g'}
+  const num = parseInt(display.map(e => dmapi[[...e].map(d => translation[d]).sort().join('')]).join(''))
+  count += num;
+}
+
+
+
 
