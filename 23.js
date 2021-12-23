@@ -87,7 +87,7 @@ b = `
   #A#D#C#A#
   #########
 `
-b=
+c=
 `
 #############
 #...........#
@@ -109,7 +109,7 @@ b=
 `
 // b=document.body.innerText.trim()
 const halls = b.trim().split('\n').slice(2, -1).map(e => e.match(/\w+/g))
-console.log(halls)
+// console.log(halls)
 
 
 const spots = ['','','X','','X','','X','','X','',''] // X can not be occupied
@@ -183,20 +183,57 @@ function getSteps(halls, fromHall, fromIndex, toHall, toIndex) {
   }
 }
 
-function print(halls) {
+function createStr(halls) {
   let str = `
-#############
-#${halls[0].map(val => val === '' || val === 'X' ? '.' : val).join('')}#
-###${halls[1][0]||' '}#${halls[1][1]||' '}#${halls[1][2]||' '}#${halls[1][3]||' '}###
-  #${halls[2][0]||' '}#${halls[2][1]||' '}#${halls[2][2]||' '}#${halls[2][3]||' '}#
-  #${halls[3][0]||' '}#${halls[3][1]||' '}#${halls[3][2]||' '}#${halls[3][3]||' '}#
-  #${halls[4][0]||' '}#${halls[4][1]||' '}#${halls[4][2]||' '}#${halls[4][3]||' '}#
-  #########
-`
+  #############
+  #${halls[0].map(val => val === '' || val === 'X' ? '.' : `${val}`).join('')}#
+  ###${halls[1][0]||' '}#${halls[1][1]||' '}#${halls[1][2]||' '}#${halls[1][3]||' '}###`
+  
+  for (let i = 2; i < halls.length; i++) {
+    str += `\n    #${halls[i][0]||' '}#${halls[i][1]||' '}#${halls[i][2]||' '}#${halls[i][3]||' '}#`
+  }
+
+
+  str += '\n    #########'
+
+  return str
+}
+
+function strset(str, index, stuff) {
+  return str.slice(0, index) + stuff + str.slice(index + 1)
+}
+
+const BG = '\x1b[0;90m'
+const RESET = '\x1b[0m'
+const BLUE = '\x1b[1;96m'
+function print(halls, prevState, details = '') {
+  let str = createStr(halls)
+
+  if (prevState) {
+    let prev = createStr(prevState)
+    let index = -1
+    for (let i = 0; i < str.length && i < prev.length; i++) {
+      if (str[i] !== prev[i]) {
+        if ([...'ABCD'].includes(str[i])) {
+          index = i
+          break
+        }
+      }
+    }
+
+    // str = strinsert(str, index + 1, BG) // reset
+    str = strset(str, index, [...'TIM!'][str.charCodeAt(index) - 'A'.charCodeAt()])
+    // str = strinsert(str, index, `\x1b[1;96m`) // color
+  }
+
+  str = str.replace(/[ABCD]/g, m => `\x1b[1;97m${m}${RESET}`)
+  str = str.replace(/#/g, c => `${BG}${c}${RESET}`)
+  str = str.replace(/\./g, m => `${BG}${m}${RESET}`)
+  str = str.replace(/[TIM!]/g, m => `${BLUE}${indexChar('TIM!'.indexOf(m))}${BG}`)
 
 	process.stdout.cursorTo(0, 0)
 	process.stdout.clearScreenDown()
-  console.log(str)
+  console.log(str + details)
 }
 
 function charEnergy(char) {
@@ -208,12 +245,12 @@ function sleep(ms) {
 }
 
 let minEnergy = Infinity
-let a;
 const mem = {}
+const hist = {} // shows consecutive states in the solution
 function backTrack(halls) {
   if (mem[halls]) return mem[halls]
   let e = Infinity;
-  a=halls;
+  let nextHalls = []
   if (done(halls)) {
     // console.log(`Done! min(${minEnergy}, ${energy})`)
     return 0
@@ -237,9 +274,6 @@ function backTrack(halls) {
     }
     return null
   }).filter(e => e).concat([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(i => !['', 'X'].includes(halls[0][i])).map(i => [0, i]))
-  // print(halls)
-  // console.log(movers)
-  // console.log(energy)
   for (const [hall, index] of movers) {
     const char = halls[hall][index]
     const destinationIndex = char.charCodeAt() - 'A'.charCodeAt()
@@ -250,7 +284,12 @@ function backTrack(halls) {
         // Destination is empty, move in!
         const en = charEnergy(char) * getSteps(halls, hall, index, i, destinationIndex)
         if (en > 0) {
-          e = Math.min(e, en + backTrack(move(halls, hall, index, i, destinationIndex)))
+          const newHalls = move(halls, hall, index, i, destinationIndex)
+          const newEnergy = en + backTrack(newHalls)
+          if (newEnergy < e) {
+            e = newEnergy;
+            nextHalls = newHalls
+          }
         }
         break
       } else if (halls[i][destinationIndex] !== char) {
@@ -264,7 +303,12 @@ function backTrack(halls) {
       for (const destinationIndex of indices) {
         const en = charEnergy(char) * getSteps(halls, hall, index, 0, destinationIndex)
         if (en > 0) {
-          e = Math.min(e, en + backTrack(move(halls, hall, index, 0, destinationIndex)))
+          const newHalls = move(halls, hall, index, 0, destinationIndex)
+          const newEnergy = en + backTrack(newHalls)
+          if (newEnergy < e) {
+            e = newEnergy;
+            nextHalls = newHalls
+          }
         }
       }
     }
@@ -272,6 +316,7 @@ function backTrack(halls) {
 
   // set in mem
   mem[halls] = e
+  hist[halls] = nextHalls.toString()
   return e
 }
 
@@ -284,5 +329,37 @@ const test = [
 // process.exit()
 
 
-console.log('MinEnergy:', backTrack(halls))
+// console.log('MinEnergy:', backTrack(halls))
 
+function stateToHalls(state) {
+  // takes a string used in mem and hist as keys, and converts it back to an ND array
+  const els = state.split(',')
+  const hallway = els.splice(0, 11)
+  const rows = els.length / 4
+  const res = [hallway]
+  for (let i = 0; i < rows; i++) {
+    res.push(els.splice(0, 4))
+  }
+  return res
+}
+
+async function visualize() {
+  print(halls)
+  console.log('\n      Hmm 🤔')
+  const energy = backTrack(halls)
+  
+  let prevState = undefined
+  let state = halls.toString()
+  while (state) {
+    let details = `
+
+      Aha 😃
+   Energy: ${energy - (mem[state] ?? 0)}`
+    print(stateToHalls(state), prevState ? stateToHalls(prevState) : undefined, details)
+    await sleep(750)
+    prevState = state
+    state = hist[state]
+  }
+}
+
+visualize()
