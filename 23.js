@@ -157,16 +157,38 @@ function solve(hallway, siderooms) {
   return energy
 }
 
-function print(hallway, siderooms) {
-  let str = '#############'
+// Iterates through different indices in n-d arrays. Uses the structure of the first array
+function* arrayDiff(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      const [...diffs] = arrayDiff(a[i], b[i])
+      if (diffs.length) {
+        for (const diff of diffs) {
+          yield [i, ...diff]
+        }
+      }
+    }
+    for (let i = Math.min(a.length, b.length); i < Math.max(a.length, b.length); i++) {
+      yield [i]
+    }
+  } else if (a !== b) yield []
+}
 
-  str += `\n#${hallway.map(val => val || '.').join('')}#`
-  str += `\n###${siderooms.map(room => room[0] || ' ').join('#')}###`
+function stringify(hallway, siderooms) {
+  // TODO: Make these colored
+  let str = '\x1b[0;90m#############'
+
+  str += `\n#${hallway.map(val => val ? `\x1b[1;37m${val}` : '\x1b[0;90m.').join('')}\x1b[0;90m#`
+  str += `\n###${siderooms.map(room => `\x1b[1;37m${room[0] || ' '}`).join('\x1b[0;90m#')}\x1b[0;90m###`
   for (let i = 1; i < siderooms[0].length; i++) {
-    str += `\n  #${siderooms.map(room => room[i] || ' ').join('#')}#`
+    str += `\n  #${siderooms.map(room => `\x1b[1;37m${room[i] || ' '}`).join('\x1b[0;90m#')}\x1b[0;90m#`
   }
-  str += '\n  #########'
-  
+  str += '\n  \x1b[0;90m#########'
+
+  return str
+}
+
+function print(str) {
   process.stdout.cursorTo(0, 0)
 	process.stdout.clearScreenDown()
   console.log(str)
@@ -174,18 +196,36 @@ function print(hallway, siderooms) {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 async function visual() {
-  const energy = solve(hallway, siderooms)
+  const getDetails = energy => `
+
+    ${energy !== undefined ? 'Aha 😃' : 'Hmm 🤔'}
+ Energy: ${energy ?? '???'}
+  `
+  
   let state = [hallway, siderooms]
-  let p = energy
+  let prevState = state
+  print(stringify(...state) + getDetails())
+
+  const energy = solve(hallway, siderooms)
 
   while (state) {
-    print(...state)
-    const diff = p - mem[state]
-    console.log(diff,energy)
-    await sleep(1000)
-    state = next[state]
-    p -= diff
+    const stateCopy = [[...state[0]], state[1].map(room => [...room])]
+    const differentIndices = arrayDiff(stateCopy, prevState)
+    for (const coords of differentIndices) {
+      const inner = coords.slice(0, -1).reduce((c, i) => c[i], stateCopy)
+      const lastCoord = coords[coords.length - 1]
+      const value = inner[lastCoord]
+      if (value.match(/[ABCD]/)) {
+        inner[lastCoord] = `\x1b[1;94m${value}\x1b[0m`
+      }
+    }
+    
+    print(stringify(...stateCopy) + getDetails(energy - (mem[state] ?? 0)))
+    
+    await sleep(400);
+    [prevState, state] = [state, next[state]]
   }
+  print(stringify(...prevState) + getDetails(energy))
 }
 
 visual()
