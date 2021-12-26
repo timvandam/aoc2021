@@ -122,6 +122,7 @@ function exec(lines, inputs, z = 0) {
     }
     
     if (command === 'inp') {
+      console.log('z',env.z)
       if (inputs.length === 0) throw new Error('not enough inputs')
       action.inp(a, inputs.shift())
     } else action[command](a, b)
@@ -172,9 +173,9 @@ function solve(digitIndex, z = 0) {
 
 
 const start = 0 // at which index to start (just to make sure it works on small examples)
-const [p1, z] = solve(start)
-console.log(p1, z)
-console.log('z', exec(rng(start, 13).flatMap(i => getProgramForDigitIndex(i)), p1, 0))
+// const [p1, z] = solve(start)
+// console.log(p1, z)
+console.log('z', exec(rng(start, 13).flatMap(i => getProgramForDigitIndex(i)), '59996912981939', 0))
 
 
 // highest: 59996912981939 (no time, too long in js)
